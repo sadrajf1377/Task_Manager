@@ -1,12 +1,14 @@
 import datetime
 import json
 
+from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Count, F, ExpressionWrapper, FloatField, Q
 from django.http import HttpRequest
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.generic import ListView, CreateView
 from rest_framework.authentication import SessionAuthentication,TokenAuthentication
@@ -25,6 +27,7 @@ orders_dict={'creation_date_asc':'-creation_date','creation_date_des':'creation_
 
 
 # Create your views here.
+@method_decorator(login_required,name='dispatch')
 class Index_Page(View):
     def get(self,request):
         unfinished_tasks=Task.objects.all().annotate(unfinished_count=Count('sub_tasks',filter=Q(sub_tasks__is_done=False))).\
