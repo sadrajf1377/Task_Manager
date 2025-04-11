@@ -1,0 +1,64 @@
+{% extends 'Base_Layout.html' %}
+
+{% block title %}  My_Tasks {% endblock %}
+{% block style %}
+<style>
+form#filter_form{
+            height: fit-content;width: 10%;
+           background-color: transparent;display: flex;flex-direction: column;text-align: center;
+            margin-left:1%;margin-right: 1%;
+    float: right;
+        }
+        #form#filter_form>input,select,option,#slider
+        {
+            width: 80%;margin-left: 5%;margin-top: 1vh;background-color: gray;color: whitesmoke;
+        }
+#tasks_container{
+    height: fit-content;width: 90%;margin-top: 1vh;display: flex;flex-direction: column;font-size: calc(3vh);
+    float: right;
+}
+#tasks_container>.task{
+    width: 60%;margin-left: 20%;border-radius: 1.5%;border: none;box-shadow: 5px 5px 5px dodgerblue;
+    background-color: dodgerblue;color: whitesmoke;font-size: calc(3.5vh);text-align: center;
+}
+</style>
+{% endblock %}
+
+{% block main_content %}
+    <form id="filter_form">
+        <h2>Filter Tasks</h2>
+        <br>
+    Deadline Greater than<br><input type="date"  id="minimum_date">
+        <br>
+    Deadline GLess than<br><input type="date"  id="maximum_date">
+        <br>
+       Minimum Completion Percentage<br><input type="number"  id="completion_percentage">
+        <br>
+       <div onclick="event.preventDefault();filter_tasks()">Start Searching</div>
+    </form>
+<div id="tasks_container">
+{% for task in tasks %}
+    <div class="task">
+{{ task.title }}
+    <br>
+    {{ task.creation_date }}
+    </div>
+{% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+function filter_tasks()
+    {
+
+       const min_date=filter_form.querySelector('input#minimum_date').value;
+       const max_date=filter_form.querySelector('input#maximum_date').value;
+       const percentage=filter_form.querySelector('input#completion_percentage').value;
+       const variables={date_min:min_date!=''?min_date:'__all__',date_max:max_date!=''?max_date:'__all__',com_percentage:percentage!=''?percentage:'__all__'}
+      window.open(`http://127.0.0.1:8000/filter_tasks/${variables.com_percentage}/${variables.date_min}/${variables.date_max}`,'_self');
+
+    }
+</script>
+{% endblock %}

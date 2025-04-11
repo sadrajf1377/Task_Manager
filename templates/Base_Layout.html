@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+     {% block style %}{% endblock %}
+    <style>
+
+        #navs
+        {
+            width: 100vw;background-color:dodgerblue;position: fixed;top: 0;left: 0;display: flex;flex-direction: row;height: fit-content;
+        }
+        #navs>div{
+            font-size: calc(3vh);color: whitesmoke;box-shadow: inset 0 0 5px lightcyan;
+          width: 20%;text-align: center;transition:background-color 0.5s ease;
+        }
+        #navs>div:hover{background-color: #003a3a;cursor: pointer;
+        }
+        #dashboard{
+            height: 97vh;top:3.7vh;position: fixed;width: 0;
+            left: 0;background-color:dodgerblue;box-shadow: inset 0 0 12px lightcyan;
+               transition:width 0.5s ease;display: flex;flex-direction: column;
+            overflow-y: scroll;
+        }
+        #dashboard>a.clickable{
+            width: 100%;border: none;font-size: calc(3vh);box-shadow: 5px 5px 5px lightgray;margin-top: 1vh;color: whitesmoke;
+             text-align: center;text-decoration: none;
+        }
+        #main
+        {
+            width: 100vw;height:fit-content;margin-top: 12vh;
+            box-shadow: 5px 5px 5px lightgray;display: flex;flex-direction:row-reverse;
+
+        }
+     #navs>div>.search_result{
+         width: 100%;height: fit-content;background-color: whitesmoke;float: top;margin-top: 1vh;font-size: calc(2.5vh);
+         background-color: gray;
+     }
+
+
+    </style>
+</head>
+<body>
+
+<nav id="navs">
+
+
+    {% if user.is_authenticated %}
+     <div onclick="open_close_dashboard()">Dashboard</div>
+      <div id="id_search_tasks" style="font-size: calc(1.5vh);height: 3.25vh">Search
+      <input style="width: 90%;margin-left:2.5%;height: 1.5vh;border: none" placeholder="enter your task title here" oninput="search_tasks_by_title(this.value)">
+      </div>
+
+    {% else %}
+       <div onclick="window.open('{% url 'load_login_signup' %}')">Login</div>
+        <div onclick="window.open('{% url 'load_login_signup' %}')">Signup</div>
+    {% endif %}
+     <div>Home</div>
+
+
+
+</nav>
+
+<div id="dashboard" data-status="close">
+<a class="clickable">
+    Create A Task
+</a>
+     <a class="clickable" href="{% url 'all_tasks_list' 'random' %}">
+        My Tasks
+    </a>
+    <a class="clickable">
+        Update My Profile
+    </a>
+    <a class="clickable">
+        Logout
+    </a>
+</div>
+
+<div id="main">
+{% block main_content %}
+{% endblock %}
+</div>
+
+{% block scripts %}
+
+{% endblock %}
+<script>
+    const dashboard=document.getElementById('dashboard');
+    const search_results_container=document.getElementById('id_search_tasks')
+    function open_close_dashboard()
+    {
+        const status=dashboard.getAttribute('data-status');
+        if(status=='open'){
+            dashboard.style.width='0vw';
+            dashboard.setAttribute('data-status','close')
+        }
+        else if(status=='close'){
+            dashboard.style.width='20vw';
+            dashboard.setAttribute('data-status','open')
+        }
+    }
+    async function search_tasks_by_title(title)
+    {
+
+          search_results_container.querySelectorAll('.search_result').forEach((el)=>el.remove())
+        const response=await fetch('http://127.0.0.1:8000'+'/tasks/'+title).then(res=>res.json()).then(res=>{
+
+            const tasks=res
+            for(const task of tasks)
+            {
+                const div=document.createElement('div'); div.className='search_result';
+                div.innerHTML=`${task.title} <br> ${task.deadline}`;
+                search_results_container.appendChild(div);
+            }
+
+        }).catch(res=>{});
+
+    }
+
+
+</script>
+</body>
+</html>

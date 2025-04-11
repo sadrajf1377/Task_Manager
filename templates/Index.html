@@ -1,0 +1,75 @@
+{% extends 'Base_Layout.html' %}
+
+{% block title %} Index Page {% endblock %}
+
+{% block style %}
+    <style>
+ #task_container
+        {
+            width: 90%;height:100%;
+            display: flex;flex-direction: column;
+        }
+        #task_container>div.part,div.split
+        {
+           height: fit-content;width:90%;margin-left: 5%;
+            font-size: calc(3.5vh);text-align: center;
+        }
+          #task_container>div.split>div{
+              width: 45%;height:30vh;float:left;margin-left: 2%;
+          }
+          #tasks_slider
+          {
+              width: 100%;box-shadow: inset 0 0 5px wheat;border-radius: 1%;overflow-x: scroll;
+              display: flex;flex-direction: row-reverse;flex-shrink: 0;height:fit-content;
+          }
+          #tasks_slider>.task
+          {
+              width:10vh;margin-right: 2%;box-shadow: 5px 5px 5px lightgray;font-size: calc(2vh);border-radius: 1%;
+              background-color: gray;height: fit-content;margin-bottom: 1vh;margin-top:1vh;transition: background-color 0.5s ease;
+          }
+          #tasks_slider>.task:hover{
+              background-color: wheat;cursor: pointer;
+          }
+          </style>
+{% endblock %}
+
+{% block main_content %}
+<div id="task_container">
+<div class="part">
+    Most Recent Task
+</div>
+    <div class="split" style="margin-top: 3vh">
+        {% for task in recently_modified %}
+            <div style="box-shadow: 5px 5px 5px lightgray;border-radius: 1.5%" onclick="window.open('{% url 'show_task_details' task.id %}')">
+            Task Title
+            <br>
+         {{ task.title }}
+            <br>
+                Deadline
+                <br>
+            {{ task.deadline }}
+            </div>
+       <div style="background: conic-gradient(red 0% {{ task.unfinished }}%,green {{ task.unfinished }}% 100% );
+               border-radius: 50%">
+
+       </div>
+
+        {% endfor %}
+    </div>
+     <div class="part" style="margin-top:3vh ">Unfinished Tasks</div>
+     <div class="part">
+
+         <div id="tasks_slider" style="margin-top: 3vh">
+         <br>
+             {% for task in unfinished_tasks %}
+             <div class="task" onclick="window.open('{% url 'show_task_details' task.id %}')">
+             {{ task.title }}
+             <br>
+             {{ task.deadline }}
+             </div>
+             {% endfor %}
+         <br>
+         </div>
+     </div>
+</div>
+{% endblock %}

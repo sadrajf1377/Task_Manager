@@ -1,0 +1,151 @@
+{% extends 'Base_Layout.html' %}
+{% block title %}
+{{ task.title }}
+{% endblock %}
+{% block style %}
+    <style>
+        #details
+        {
+            height: fit-content;width:90%;margin-top: 1vh;border: none;border-radius: 1.5%;
+            box-shadow: 5px 5px 5px lightgray;display: flex;flex-direction: column;text-align: center;font-size: calc(3vh);
+            margin-right: 5%;
+        }
+
+        #details>section{
+            height: fit-content;width: 100%;
+            display: flex;flex-direction: column;
+        }
+        #details>section#head{
+            font-size: calc(3vh);text-align: center;
+
+        }
+        #details>section#head>button#delete_button
+        {
+            background-color: red;border: none;border-radius: 1.5%;background-color: red;color: whitesmoke;box-shadow: 5px 5px 5px red;
+        }
+        #details>section#head>#buttons_container{
+            width: 25%;height: fit-content;display: flex;flex-direction: row;margin-top: 1vh;
+        }
+        #details>section#head>#buttons_container>button#delete_subtasks,button#update_subtasks{
+            width: 50%;height: 100%;color: whitesmoke;border: none;
+        }
+        #details>section#body>div.subtask
+        {
+              width: 90%;margin-left: 5%;box-shadow: 2px 2px 2px lightgray;color: black;border: none;border-radius: 1.5%;
+              font-size: calc(3vh);text-align: center;height: fit-content;word-wrap: break-word;margin-top: 1vh;position: relative;
+        }
+    </style>
+{% endblock %}
+
+{% block main_content %}
+{% csrf_token %}
+
+<div id="details">
+    <section id="head">
+        Task's title :{{ task.title }}
+        <br>
+        Task's Deadline :{{ task.deadline }}
+        <br>
+        Tasks 's Description:{{ task.description }}
+        <button id="delete_button" onclick="delete_task()">
+            Delete This Task
+        </button>
+        <section id="buttons_container">
+            <button id="delete_subtasks" style="background-color:red;display: none" onclick="delete_selected_subtasks()">
+            delete_subtasks
+        </button>
+        <button id="update_subtasks" style="background-color: greenyellow" onclick="submit_changes()">
+            update subtasks
+        </button>
+
+        </section>
+
+    </section>
+<hr>
+    <section id="body" style="margin-top: 2vh">
+    Task's Subtasks
+      {% for sub in sub_tasks %}
+          <script>
+          add_subtask("{{ sub.id }}","{{ sub.title }}","{{ sub.deadline }}","{{ sub.is_done }}","{{ sub.description }}");
+          </script>
+        <div class="subtask">
+        <input type="checkbox" style="position: absolute;top:0;right: 0" oninput="add_remove_subtask('{{ sub.id }}',this.checked)">
+        {% with sub.id as sub_id %}
+        title :<input type="text" value="{{ sub.title }}" oninput="update_value('title',this.value,'{{ sub_id }}')">
+        <br>
+        deadline :<input type="date" value="{{ sub.deadline }}" oninput="update_value('deadline',this.value,'{{ sub_id }}')">
+        <br>
+        desc : <input type="text" style="resize: none" value="{{ sub.description }}" oninput="update_value('description',this.value,'{{ sub_id }}')">
+        <br>
+        Is Done :<input type="checkbox" value="{{ sub.is_done }}" oninput="update_value('is_done',this.value,'{{ sub_id }}')">
+        </div>
+          {% endwith %}
+        {% endfor %}
+    </section>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"> </script>
+<script>
+    const csrf_token=document.getElementsByName('csrfmiddlewaretoken')[0].value;
+      const subtasks_to_delete=[];
+      const delete_subtasks_button=document.getElementById('delete_subtasks');
+      const filter_form=document.getElementById('filter_form')
+      function add_remove_subtask(sub_id,to_add)
+      {
+          if(!to_add)
+          {
+              const ind=subtasks_to_delete.findIndex((x)=>x==sub_id);
+              subtasks_to_delete.splice(ind,1);
+
+          }else{
+
+              subtasks_to_delete.push(sub_id)
+          }
+          console.log(subtasks_to_delete.length)
+          delete_subtasks_button.style.display=subtasks_to_delete.length!=0?'block':'none';
+
+      }
+
+     function delete_task()
+    {
+        fetch('{% url 'delete_task' task.id %}',{headers:{'X-csrftoken':csrf_token},method:'POST'}).then(res=>res.json()).then(
+            res=>{alert(res.message);window.open('{% url 'all_tasks_list' 'sd' %}')}
+
+        ).catch(res=>{alert(res.message)});
+
+
+    }
+    async function delete_selected_subtasks()
+    {
+
+
+        const data=JSON.stringify({'task_id':'{{ task.id }}','subtasks_ids':subtasks_to_delete.toString()})
+        const ajax={type:'POST',headers:{'X-csrftoken':csrf_token,'Content-Type': 'application/json'},contentType: false,processData: false,data:data,url:'{% url 'delete_subtasks' %}'}
+        const response=await $.ajax(ajax).then(res=>{window.open(window.location)}).catch(res=>{
+            console.log(res)
+        })
+    }
+    function update_value(key,value,id)
+    {
+         subtasks[id][key]=value;
+         console.log(subtasks)
+
+    }
+   function submit_changes()
+     {
+      const ajax={type:'POST',url:'{% url 'update_subtasks' task.id %}',contentType:false,processData:false,
+          headers:{'X-csrftoken':csrf_token,'Content-Type': 'application/json'},data:
+             JSON.stringify({subtasks})
+      }
+      $.ajax(ajax).then(res=>{console.log(res)}).catch(res=>{console.log(res)})
+     }
+     const subtasks={};
+    function add_subtask(id,title,deadline,is_done,description)
+    {
+        subtasks[id]={'title':title,'deadline':deadline,'is_done':is_done,'description':description}
+    }
+
+</script>
+{% endblock %}

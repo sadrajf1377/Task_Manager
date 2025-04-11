@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #login_signup_section
+        {
+            height: fit-content;width: 30vw;margin-top: 10vh;margin-left:35vw;
+            display: flex;flex-direction: column;
+            box-shadow: 5px 5px 5px gray;
+        }
+        #login_signup_section>#heads{
+            width: 100%;height: fit-content;display: flex;flex-direction: row;
+        }
+        #heads>div{
+            width: 50%;height: 100%;background-color: lightgray;color: whitesmoke;font-size: calc(3vh);
+            text-align: center;word-wrap: break-word;
+            border-bottom: 2px solid gray;
+        }
+        #login_signup_section>#main_sec
+        {
+            height: fit-content;width: 100%;background-color: lightgray;
+        }
+        form{
+            height: fit-content;width: 100%;font-size: calc(3vh);text-align: center;color: whitesmoke;
+        }
+        form>input,textarea{
+            width: 80%;height: 3vh;font-size: calc(3vh);border-radius: 1.5%;box-shadow: 5px 5px 5px gray;
+            border: none;outline: none;margin-top: 1vh;
+        }
+        form>button{
+            width: 40%;height:3vh;background-color:lightgreen;color: whitesmoke;border: none;
+            box-shadow: 5px 5px 5px lightgreen;margin-bottom: 1vh;margin-top: 5vh;
+        }
+    </style>
+</head>
+<body>
+<div id="login_signup_section">
+    <div id="heads">
+        <div id="signup">Singup</div>
+        <div id="login" style="border-left: 1px solid gray">Login</div>
+    </div>
+    <div id="main_sec">
+       <form action="{% url 'login_user' %}" method="post">
+       {% csrf_token %}
+           {% for field in login_form %}
+
+           {{ field.label }}
+               <br>
+               {{ field }}
+               {% for error in field.errors %}
+                   <p style="color: red;font-size: calc(2vh)">
+                   {{ error }}
+                   </p>
+                   {% endfor %}
+           {% endfor %}
+       <br>
+       <button>
+           Login
+       </button>
+
+       </form>
+    </div>
+</div>
+<script>
+    const heads=document.getElementById('heads');
+
+</script>
+</body>
+</html>

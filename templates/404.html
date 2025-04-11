@@ -1,0 +1,14 @@
+{% extends 'Base_Layout.html' %}
+
+{% block title %} 404 {% endblock %}
+
+{% block style %}
+    <style>
+    #message_container{
+        width: 90%;margin-left: 5%;margin-top: 2vh;height: fit-content;word-wrap: break-word;
+        background-color: darkslategrey;color: whitesmoke;font-size: calc(3.5vh);
+    }
+    </style>
+
+{% endblock %}
+{% block main_content %} <div id="message_container">404 <br> Page Not Found</div>{% endblock %}
