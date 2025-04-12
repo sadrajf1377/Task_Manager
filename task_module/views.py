@@ -64,7 +64,7 @@ class All_Tasks_List(ListView):
     paginate_by = 25
     def get_queryset(self):
         query_set=super().get_queryset().prefetch_related('sub_tasks').annotate(unfinisehd=Count('sub_tasks',filter=Q(sub_tasks__is_done=False)),
-                                                                                finished=Count('sub_tasks',filter=Q(sub_tasks__is_done=True))).all().only('title','creation_date',
+                                                                                finished=Count('sub_tasks',filter=Q(sub_tasks__is_done=True))).all().values('title','creation_date',
                                                                                                                                                           'finished','unfinisehd')
         ordering=self.kwargs['ordering']
         try:
