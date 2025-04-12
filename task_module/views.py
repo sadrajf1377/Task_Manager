@@ -122,7 +122,7 @@ class Create_SubTask(View):
         if subtask_form.is_valid():
             if subtask_form.instance.task.creator==request.user:
                 subtask_form.save()
-                return render(request,'Dynamic_Message.html',context={})
+                return redirect(reverse('all_tasks_list'))
             else:
                 subtask_form.add_error('deadline','the parent of this subtask does not exist!')
                 return render(request, 'Create_SubTask.html', context={'subtask_form': subtask_form})
@@ -223,28 +223,40 @@ class Filter_Tasks(ListView):
             query=super().get_queryset().filter(Q(creator_id=self.request.user),condition)
             return query
 
-@method_decorator(login_required,name='dispatch')
+
 class Update_Subtasks(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionAuthentication,TokenAuthentication]
     def post(self,request:HttpRequest,task_id):
 
         subtasks=request.data['result']
+        try:
+              task=Task.objects.get(id=task_id,creator=request.user)
+              ids=subtasks.keys()
+              query=task.sub_tasks.all().select_for_update().filter(id__in=ids)
+              to_update=[]
+              for tsk in query:
+                  ser=Subtask_Update_Serializer(data=subtasks[str(tsk.id)])
 
-        ids=subtasks.keys()
-        query=Sub_Task.objects.select_related('task').filter(task_id=task_id,task__creator_id=request.user.id,id__in=ids)
-        to_update=[]
-        for tsk in query:
-            ser=Subtask_Update_Serializer(data=subtasks[str(tsk.id)])
-
-            if ser.is_valid():
-                tsk.title=ser.data['title']
-                tsk.deadline=ser.data['deadline']
-                tsk.is_done=ser.data['is_done']
-                tsk.description=ser.data['description']
-                to_update.append(tsk)
+                  if ser.is_valid():
+                     tsk.title=ser.data['title']
+                     tsk.deadline=ser.data['deadline']
+                     tsk.is_done=ser.data['is_done']
+                     tsk.description=ser.data['description']
+                     to_update.append(tsk)
+                  else:
+                       return Response({'message':'could not update the given subtasks!check out the errors','errors':str(ser.errors)},status=400)
+              Sub_Task.objects.bulk_update(to_update,fields=['title','deadline','is_done','description'])
+              return Response({'message':'subtasks changed successfully!'},status=201)
+        except Exception as e:
+            if isinstance(e,Task.DoesNotExist):
+                return Response({'message':'Task withc such id was not found!'},status=404)
+            elif isinstance(e,json.JSONDecodeError):
+                return Response({'message':'incorrect data format!make sure to enter your variables in this format:{result:{subtasks_id:{subtask title,subtask deadline,is done,description}}}'})
             else:
-                return Response({'message':'could not update the given subtasks!check out the errors','errors':str(ser.errors)},status=400)
-        Sub_Task.objects.bulk_update(to_update,fields=['title','deadline','is_done','description'])
-        return Response({'message':'subtasks changed successfully!'},status=201)
+                return Response({'message':'an unkown error happend,please try again'},status=500)
+
+
 
 
 

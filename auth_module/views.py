@@ -8,7 +8,7 @@ from django.utils.crypto import get_random_string
 from django.views import View
 from .forms import Login_Form,Signup_Form
 from user_module.models import User_Model
-from utils.email_services import send_email_to_user
+
 # Create your views here.
 class Login_Singup_Page(View):
     def get(self,request):
@@ -50,8 +50,7 @@ class Signup(View):
                     frm.instance.set_password(password)
                     frm.instance.activation_code=act_code
                     frm.save()
-                    send_email_to_user('',to=[frm.cleaned_data.get('email')],subject='user activation',contex={})
-                    return render(request,'Message.html',context={})
+                    return render(request,'Message.html',context={f'User Was Created SuccessFully!credintials are password:{password},username:{frm.cleaned_data.get("username")}',},status=201)
             except:
                 frm.add_error('password_repeat','failed to send email!please try again')
                 return render(request,'Login&Signup.html',context={'login_form':Login_Form(),'signup_form':frm})
