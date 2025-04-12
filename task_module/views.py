@@ -56,6 +56,7 @@ class Search_Tasks_By_Title(ListAPIView):
         return query_set
 
 
+@method_decorator(login_required,name='dispatch')
 class All_Tasks_List(ListView):
     model=Task
     template_name = 'My_Tasks.html'
@@ -72,6 +73,7 @@ class All_Tasks_List(ListView):
 
         return query_set
 
+@method_decorator(login_required,name='dispatch')
 class Task_Details(ListView):
     template_name = 'Task_Details.html'
     model=Sub_Task
@@ -92,6 +94,7 @@ class Task_Details(ListView):
         context['subtask_form']=Create_Subtask_Form(initial={'task':self.task})
         return context
 
+@method_decorator(login_required,name='dispatch')
 class Create_Task(View):
     def get(self,request):
         frm=Create_Task_Form()
@@ -106,6 +109,7 @@ class Create_Task(View):
             return render(request,'Create_Task.html', context={'creation_form': frm})
 
 
+@method_decorator(login_required,name='dispatch')
 class Create_SubTask(View):
     def get(self,request):
         frm=Create_Task_Form()
@@ -123,7 +127,7 @@ class Create_SubTask(View):
         else:
             return render(request, 'Create_SubTask.html', context={'subtask_form': subtask_form})
 
-
+@method_decorator(login_required,name='dispatch')
 class Modify_Task(View):
     def post(self,request,task_id):
         try:
@@ -147,7 +151,7 @@ class Modify_Task(View):
         except Task.DoesNotExist:
             return render(request, '404.html')
 
-
+@method_decorator(login_required,name='dispatch')
 class Delete_Subtasks(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [SessionAuthentication,TokenAuthentication]
@@ -172,7 +176,7 @@ class Delete_Subtasks(APIView):
                 print(exc)
                 return Response(data={'message': 'unknown error happend,pls try again'}, status=500)
 
-
+@method_decorator(login_required,name='dispatch')
 class Delete_Task(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [SessionAuthentication,TokenAuthentication]
@@ -187,7 +191,7 @@ class Delete_Task(APIView):
             else:
                 return Response({'message':'Unkown error happend,pls try again!'},status=500)
 
-
+@method_decorator(login_required,name='dispatch')
 class Filter_Tasks(ListView):
     template_name = 'My_Tasks.html'
     model = Task
@@ -216,7 +220,7 @@ class Filter_Tasks(ListView):
             query=super().get_queryset().filter(Q(creator_id=self.request.user),condition)
             return query
 
-
+@method_decorator(login_required,name='dispatch')
 class Update_Subtasks(APIView):
     def post(self,request:HttpRequest,task_id):
 
