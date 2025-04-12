@@ -63,7 +63,9 @@ class All_Tasks_List(ListView):
     context_object_name = 'tasks'
     paginate_by = 25
     def get_queryset(self):
-        query_set=super().get_queryset().annotate(unfinisehd=Count('sub_tasks',filter=Q(sub_tasks__is_done=False))).all().only('title','creation_date')
+        query_set=super().get_queryset().prefetch_related('sub_tasks').annotate(unfinisehd=Count('sub_tasks',filter=Q(sub_tasks__is_done=False)),
+                                                                                finished=Count('sub_tasks',filter=Q(sub_tasks__is_done=True))).all().only('title','creation_date',
+                                                                                                                                                          'finished','unfinisehd')
         ordering=self.kwargs['ordering']
         try:
             order=orders_dict[ordering]
@@ -132,22 +134,23 @@ class Modify_Task(View):
     def post(self,request,task_id):
         try:
             with transaction.atomic():
-              task=Task.objects.select_for_update().get(id=task_id)
+              task=Task.objects.select_for_update().get(id=task_id,creator_id=request.user.id)
               frm=Create_Task_Form(request.POST,instance=task)
               if frm.is_valid():
                   frm.save()
                   return redirect(reverse('all_tasks_list', args=task.id))
               else:
-                  return render(request, '', context={'frm': frm})
+                  return render(request, 'Modify_Task.html', context={'frm': frm})
 
         except Task.DoesNotExist:
-            return render(request, '404.html')
+            frm.add_error('description','task with such id was not found')
+            return render(request,'Modify_Task.html', context={'frm': frm})
 
     def get(self,request,task_id):
         try:
-            task=Task.objects.select_for_update().get(id=task_id)
-            frm=Create_Task_Form(task,instance=task)
-            return render(request, '', context={'frm': frm})
+            task=Task.objects.select_for_update().get(id=task_id,creator_id=request.user.id)
+            frm=Create_Task_Form(instance=task)
+            return render(request, 'Modify_Task.html', context={'frm': frm})
         except Task.DoesNotExist:
             return render(request, '404.html')
 
@@ -173,7 +176,7 @@ class Delete_Subtasks(APIView):
             elif isinstance(exc,Task.DoesNotExist):
                 return Response(data={'message': 'task with such id was not found'}, status=404)
             else:
-                print(exc)
+
                 return Response(data={'message': 'unknown error happend,pls try again'}, status=500)
 
 @method_decorator(login_required,name='dispatch')
@@ -201,11 +204,11 @@ class Filter_Tasks(ListView):
         completion_percentage=self.kwargs['completion_percentage_minimum']
         deadline_min=self.kwargs['deadline_min']
         deadline_max=self.kwargs['deadline_max']
-        print(deadline_min)
+
         condition=Q()
         if deadline_min!='__all__':
             min_date=datetime.datetime.strptime(deadline_min,'%Y-%m-%d').date()
-            print(deadline_min)
+
             condition=condition & Q(deadline__gte=min_date)
         if deadline_max!='__all__':
             max_date = datetime.datetime.strptime(deadline_max, '%Y-%m-%d').date()
@@ -231,7 +234,7 @@ class Update_Subtasks(APIView):
         to_update=[]
         for tsk in query:
             ser=Subtask_Update_Serializer(data=subtasks[str(tsk.id)])
-            print(subtasks[str(tsk.id)])
+
             if ser.is_valid():
                 tsk.title=ser.data['title']
                 tsk.deadline=ser.data['deadline']
@@ -239,9 +242,9 @@ class Update_Subtasks(APIView):
                 tsk.description=ser.data['description']
                 to_update.append(tsk)
             else:
-                print(ser.errors)
+                return Response({'message':'could not update the given subtasks!check out the errors','errors':str(ser.errors)},status=400)
         Sub_Task.objects.bulk_update(to_update,fields=['title','deadline','is_done','description'])
-        return Response({'message':'subtasks changed successfully!'})
+        return Response({'message':'subtasks changed successfully!'},status=201)
 
 
 
