@@ -21,6 +21,9 @@ form#filter_form{
     width: 60%;margin-left: 20%;border-radius: 1.5%;border: none;box-shadow: 5px 5px 5px dodgerblue;
     background-color: dodgerblue;color: whitesmoke;font-size: calc(3.5vh);text-align: center;
 }
+#tasks_container>.task>.completion{
+    width: 120px;height: 120px;margin-left: 50%;border-radius: 50%;
+}
 </style>
 {% endblock %}
 
@@ -42,6 +45,8 @@ form#filter_form{
 {{ task.title }}
     <br>
     {{ task.creation_date }}
+        {{ task.unfinished }}/{{ task.finished }}
+    <div class="completion" style="background: conic-gradient(red 0% {{ task.unfinished }}% green {{ task.unfinished }}% {{ task.finished }}%)"></div>
     </div>
 {% endfor %}
 </div>
