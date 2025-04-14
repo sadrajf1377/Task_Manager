@@ -42,7 +42,7 @@
         <div id="login" style="border-left: 1px solid gray">Login</div>
     </div>
     <div id="main_sec">
-       <form action="{% url 'login_user' %}" method="post">
+       <form action="{% url 'login_user' %}" method="post" id="login_form">
        {% csrf_token %}
            {% for field in login_form %}
 
@@ -59,8 +59,8 @@
        <button>
            Login
        </button>
-
        </form>
+
     </div>
 </div>
 <script>

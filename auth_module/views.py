@@ -26,8 +26,6 @@ class Login(View):
         if frm.is_valid():
             try:
                 user_email=frm.cleaned_data.get('username_email')
-                print(user_email)
-                print(frm.cleaned_data.get('password'))
                 user=User_Model.objects.get(Q(email=user_email)|Q(username=user_email))
 
                 if user.check_password(frm.cleaned_data.get('password')):
