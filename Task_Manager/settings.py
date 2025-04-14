@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 
 LOGIN_URL='http://127.0.0.1:8000/auth/login_signup/login'
 # Application definition
-
+API_KEY='scv@G563V!?gs3Kfed45=bdgd!_dgb>fv?'
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
