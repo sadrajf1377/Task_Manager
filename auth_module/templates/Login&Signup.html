@@ -13,7 +13,7 @@
         #login_signup_section>#heads{
             width: 100%;height: fit-content;display: flex;flex-direction: row;
         }
-        #heads>div{
+        #heads>a{
             width: 50%;height: 100%;background-color: lightgray;color: whitesmoke;font-size: calc(3vh);
             text-align: center;word-wrap: break-word;
             border-bottom: 2px solid gray;
@@ -38,26 +38,29 @@
 <body>
 <div id="login_signup_section">
     <div id="heads">
-        <div id="signup">Singup</div>
-        <div id="login" style="border-left: 1px solid gray">Login</div>
+        <a id="signup" style="background-color: {% if type == 'signup' %}  gray {% else %} darkgray {% endif %}" href="{% url 'load_login_signup' 'signup' %}">SignUp</a>
+        <a id="login" style="border-left: 1px solid gray;background-color: {% if type == 'login' %}  gray {% else %} darkgray {% endif %}"
+        href="{% url 'load_login_signup' 'login' %}">Login</a>
     </div>
     <div id="main_sec">
-       <form action="{% url 'login_user' %}" method="post" id="login_form">
+       <form action="{% if 2 == 2%} {% url 'login_user' %} {% else %} {% url 'signup_user' %} {% endif %}" method="post">
        {% csrf_token %}
-           {% for field in login_form %}
+           {% for field in form %}
 
            {{ field.label }}
                <br>
                {{ field }}
                {% for error in field.errors %}
+
                    <p style="color: red;font-size: calc(2vh)">
                    {{ error }}
                    </p>
                    {% endfor %}
+               <br>
            {% endfor %}
        <br>
        <button>
-           Login
+           {% if type == 'login' %} login {% else %} signup {% endif %}
        </button>
        </form>
 

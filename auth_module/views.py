@@ -17,8 +17,15 @@ from utils.decorators import check_api_key
 from Task_Manager.settings import SECRET_KEY
 # Create your views here.
 class Login_Singup_Page(View):
-    def get(self,request):
-        return render(request,'Login&Signup.html',context={'login_form':Login_Form(),'signup_form':Signup_Form()})
+    def get(self,request,to_render):
+        if to_render=='signup' or to_render=='login':
+            frm=Signup_Form() if to_render=='signup' else Login_Form()
+            return render(request, 'Login&Signup.html',
+                          context={'form':frm,'type':to_render})
+        else:
+            return render(request,'404.html',status=404)
+
+
 
 class Login(View):
     def post(self,request):
@@ -33,14 +40,14 @@ class Login(View):
                 else:
                     frm.add_error('password','user not found')
                     return render(request, 'Login&Signup.html',
-                                  context={'login_form': frm, 'signup_form': Signup_Form()})
+                                  context={'form':frm,'type':'login'})
             except Exception as e:
                 print(e)
                 frm.add_error('password', 'user not found')
                 return render(request, 'Login&Signup.html',
-                              context={'login_form': frm, 'signup_form': Signup_Form()})
+                              context={'form':frm,'type':'login'})
         else:
-            return render(request,'Login&Signup.html',context={'login_form':frm,'signup_form':Signup_Form()})
+            return render(request,'Login&Signup.html',context={'form':frm,'type':'login'})
 
 
 @method_decorator(check_api_key,name='dispatch')
@@ -80,9 +87,9 @@ class Signup(View):
                     return render(request,'Message.html',context={f'User Was Created SuccessFully!credintials are password:{password},username:{frm.cleaned_data.get("username")}',},status=201)
             except:
                 frm.add_error('password','an error happend,please try again')
-                return render(request,'Login&Signup.html',context={'login_form':Login_Form(),'signup_form':frm},status=500)
+                return render(request,'Login&Signup.html',context={'form':frm,'type':'signup'},status=500)
         else:
-            return render(request, 'Login&Signup.html', context={'login_form': Login_Form(), 'signup_form': frm},status=400)
+            return render(request, 'Login&Signup.html', context={'form':frm,'type':'signup'},status=400)
 
 
 class Logout(View):

@@ -29,7 +29,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-LOGIN_URL=reverse_lazy('load_login_signup')
+LOGIN_URL='http://127.0.0.1:8000/auth/login_signup/login'
 # Application definition
 
 INSTALLED_APPS = [

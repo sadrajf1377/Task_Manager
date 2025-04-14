@@ -12,6 +12,8 @@ class Signup_Form(forms.ModelForm):
     class Meta:
         model=User_Model
         fields=['username','email','password']
+        labels={'username':'username','email':'email','password':'password'}
+        widgets={'username':forms.TextInput(),'email':forms.EmailInput(),'password':forms.PasswordInput()}
     password_repeat=forms.CharField(max_length=25,required=True,label='password_repeat',widget=forms.PasswordInput())
     def is_valid(self):
         is_valid=super().is_valid()
