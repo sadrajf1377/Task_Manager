@@ -33,7 +33,7 @@ form#filter_form{
         <br>
     Deadline Greater than<br><input type="date"  id="minimum_date">
         <br>
-    Deadline GLess than<br><input type="date"  id="maximum_date">
+    Deadline Less than<br><input type="date"  id="maximum_date">
         <br>
        Minimum Completion Percentage<br><input type="number"  id="completion_percentage">
         <br>
@@ -45,8 +45,7 @@ form#filter_form{
 {{ task.title }}
     <br>
     {{ task.creation_date }}
-        {{ task.unfinished }}/{{ task.finished }}
-    <div class="completion" style="background: conic-gradient(red 0% {{ task.unfinished }}% green {{ task.unfinished }}% {{ task.finished }}%)"></div>
+
     </div>
 {% endfor %}
 </div>

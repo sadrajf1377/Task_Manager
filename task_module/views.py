@@ -63,9 +63,7 @@ class All_Tasks_List(ListView):
     context_object_name = 'tasks'
     paginate_by = 25
     def get_queryset(self):
-        query_set=super().get_queryset().prefetch_related('sub_tasks').annotate(unfinisehd=Count('sub_tasks',filter=Q(sub_tasks__is_done=False)),
-                                                                                finished=Count('sub_tasks',filter=Q(sub_tasks__is_done=True))).all().values('title','creation_date',
-                                                                                                                                                          'finished','unfinisehd')
+        query_set=super().get_queryset().prefetch_related('sub_tasks').all().values('title','creation_date')
         ordering=self.kwargs['ordering']
         try:
             order=orders_dict[ordering]

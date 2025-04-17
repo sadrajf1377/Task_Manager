@@ -1,4 +1,4 @@
-from django.contrib.auth import logout
+from django.contrib.auth import logout, login
 from django.db import transaction
 from django.db.models import Q
 from django.http import HttpResponse
@@ -31,23 +31,25 @@ class Login(View):
     def post(self,request):
         frm=Login_Form(request.POST)
         if frm.is_valid():
+
             try:
                 user_email=frm.cleaned_data.get('username_email')
                 user=User_Model.objects.get(Q(email=user_email)|Q(username=user_email))
 
                 if user.check_password(frm.cleaned_data.get('password')):
-                    return HttpResponse('logged in successfully')
+                    login(request=request,user=user)
+                    return redirect(reverse('load_index'))
                 else:
                     frm.add_error('password','user not found')
                     return render(request, 'Login&Signup.html',
-                                  context={'form':frm,'type':'login'})
+                                  context={'form':frm,'type':'login'},status=404)
             except Exception as e:
                 print(e)
                 frm.add_error('password', 'user not found')
                 return render(request, 'Login&Signup.html',
-                              context={'form':frm,'type':'login'})
+                              context={'form':frm,'type':'login'},status=404)
         else:
-            return render(request,'Login&Signup.html',context={'form':frm,'type':'login'})
+            return render(request,'Login&Signup.html',context={'form':frm,'type':'login'},status=400)
 
 
 @method_decorator(check_api_key,name='dispatch')
@@ -84,11 +86,13 @@ class Signup(View):
                     frm.instance.set_password(password)
                     frm.instance.activation_code=act_code
                     frm.save()
-                    return render(request,'Message.html',context={f'User Was Created SuccessFully!credintials are password:{password},username:{frm.cleaned_data.get("username")}',},status=201)
-            except:
+                    return render(request,'Message.html',context={'message':f'User Was Created SuccessFully!credintials are password:{password},username:{frm.cleaned_data.get("username")}',},status=201)
+            except Exception as e:
+
                 frm.add_error('password','an error happend,please try again')
                 return render(request,'Login&Signup.html',context={'form':frm,'type':'signup'},status=500)
         else:
+
             return render(request, 'Login&Signup.html', context={'form':frm,'type':'signup'},status=400)
 
 

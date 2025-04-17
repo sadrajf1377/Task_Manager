@@ -24,7 +24,10 @@
         }
         #dashboard>a.clickable{
             width: 100%;border: none;font-size: calc(3vh);box-shadow: 5px 5px 5px lightgray;margin-top: 1vh;color: whitesmoke;
-             text-align: center;text-decoration: none;
+             text-align: left;text-decoration: none;margin-left: 1%;
+        }
+        #dashboard>h2{
+            color: whitesmoke;font-family: "B Nazanin";border-bottom: 1px solid gray;
         }
         #main
         {
@@ -36,6 +39,7 @@
          width: 100%;height: fit-content;background-color: whitesmoke;float: top;margin-top: 1vh;font-size: calc(2.5vh);
          background-color: gray;
      }
+
 
 
     </style>
@@ -62,15 +66,33 @@
 </nav>
 
 <div id="dashboard" data-status="close">
+    <h2>
+        Tasks
+    </h2>
 <a class="clickable">
     Create A Task
 </a>
      <a class="clickable" href="{% url 'all_tasks_list' 'random' %}">
         My Tasks
     </a>
+    <h2>
+        User
+    </h2>
+
+
     <a class="clickable">
         Update My Profile
     </a>
+    <h2>
+        Notes
+    </h2>
+    <a class="clickable">
+        My Notes
+    </a>
+    <a class="clickable">
+        Create a Note
+    </a>
+
     <a class="clickable" href="{% url 'logout' %}">
         Logout
     </a>

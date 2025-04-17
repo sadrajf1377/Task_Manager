@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'user_module',
     'task_module',
     'auth_module',
-    'rest_framework'
+    'rest_framework',
+    'note_module'
 ]
 AUTH_USER_MODEL='user_module.user_model'
 MIDDLEWARE = [
